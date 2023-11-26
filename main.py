@@ -4,17 +4,20 @@ import sqlite3
 from PyQt6.QtWidgets import *
 from PyQt6 import uic
 
+from addEditCoffeeForm import Ui_Widget
+from main_ui import Ui_MainWindow
 
-class ADD(QMainWindow):
+
+class ADD(QMainWindow, Ui_Widget):
     def __init__(self):
         super().__init__()
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
         self.okButton.clicked.connect(self.ok)
 
 
     def ok(self):
         if self.a.text() != '' and self.b.text() != '' and self.c.text() != '' and self.d.text() != '' and self.e.text() != '' and self.f.text() != '':
-            connection = sqlite3.connect('coffee.db')
+            connection = sqlite3.connect('data//coffee.db')
             cursor = connection.cursor()
             cursor.execute(
                 f"INSERT INTO coffee(ID, sort_name, roasting_degree, ground_ingrains, taste_decription, price, packing_volume)"
@@ -25,13 +28,13 @@ class ADD(QMainWindow):
         self.w = MAIN()
         self.w.show()
 
-class EDIT(QMainWindow):
+class EDIT(QMainWindow, Ui_Widget):
     def __init__(self, index):
         print(index)
         self.index = index
         super().__init__()
-        uic.loadUi('addEditCoffeeForm.ui', self)
-        connection = sqlite3.connect('coffee.db')
+        self.setupUi(self)
+        connection = sqlite3.connect('data//coffee.db')
         cursor = connection.cursor()
         data = cursor.execute(f"SELECT sort_name, roasting_degree, ground_ingrains, taste_decription, price, packing_volume "
                        f"FROM coffee WHERE ID = ?",
@@ -45,22 +48,23 @@ class EDIT(QMainWindow):
         self.okButton.clicked.connect(self.ok)
 
     def ok(self):
-        connection = sqlite3.connect('coffee.db')
-        cursor = connection.cursor()
-        cursor.execute(f"UPDATE coffee SET sort_name = ?, roasting_degree = ?, ground_ingrains = ?, taste_decription = ?, price = ?, packing_volume = ? "
-                       f"WHERE ID = ?",
-                       (self.a.text(), self.b.text(), self.c.text(), self.d.text(), self.e.text(), self.f.text(), self.index)).fetchall()
-        connection.commit()
-        connection.close()
+        if self.a.text() != '' and self.b.text() != '' and self.c.text() != '' and self.d.text() != '' and self.e.text() != '' and self.f.text() != '':
+            connection = sqlite3.connect('data//coffee.db')
+            cursor = connection.cursor()
+            cursor.execute(f"UPDATE coffee SET sort_name = ?, roasting_degree = ?, ground_ingrains = ?, taste_decription = ?, price = ?, packing_volume = ? "
+                           f"WHERE ID = ?",
+                           (self.a.text(), self.b.text(), self.c.text(), self.d.text(), self.e.text(), self.f.text(), self.index)).fetchall()
+            connection.commit()
+            connection.close()
         self.close()
         self.w = MAIN()
         self.w.show()
 
 
-class MAIN(QMainWindow):
+class MAIN(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main.ui', self)
+        self.setupUi(self)
         self.flag = False
         self.tableWidget.setColumnWidth(0, 40)
         self.tableWidget.setColumnWidth(1, 200)
@@ -86,7 +90,7 @@ class MAIN(QMainWindow):
     def show_info(self):
         global row_count
         row_count = 0
-        connection = sqlite3.connect('coffee.db')
+        connection = sqlite3.connect('data//coffee.db')
         cur = connection.cursor()
         sqlquery = ('SELECT *'
                     'FROM coffee ORDER BY ID')
